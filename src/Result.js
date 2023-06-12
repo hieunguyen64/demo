@@ -4,17 +4,17 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import DialogBuyProduct from './DialogBuyProduct';
 
-const Result = ({ user }) => {
-  const [startDate, setStartDate] = useState(new Date());
+const Result = ({ user,startDate,handleChangeDate, handleTurnOnReload }) => {
+  // const [startDate, setStartDate] = useState(new Date());
   const [open, setOpen] = React.useState(false);
   const [value, setValue] = React.useState({});
   const handleClickOpen = () => {
     setOpen(true);
   };
 
-  const handleClose = (res) => {
-    if(res?.name) {
-      setValue(res)
+  const handleClose = (isReload) => {
+    if(isReload) {
+      handleTurnOnReload()
     }
     setOpen(false);
   };
@@ -42,7 +42,7 @@ const Result = ({ user }) => {
 
                 dateFormat="dd/MM/yyyy"
                 selected={startDate}
-                onChange={(date) => setStartDate(date)} />
+                onChange={(date) => handleChangeDate(date)} />
             </div>
             <Box className='user__action'  sx={{display: 'flex', flexDirection: "column"}}>
               <Button variant="contained"
@@ -62,7 +62,8 @@ const Result = ({ user }) => {
         )
       }
        <DialogBuyProduct
-        user = {user}
+        startDate={startDate}
+        user = {value}
         open={open}
         onClose={handleClose}
       />

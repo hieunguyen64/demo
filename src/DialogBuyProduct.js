@@ -10,7 +10,7 @@ import axios from 'axios';
 
 
 export default function DialogBuyProduct(props) {
-  const { onClose, open, user } = props;
+  const { onClose, open, user, startDate } = props;
   const [price, setPrice] = React.useState(0);
 
   const handlePrice = (event) => {
@@ -32,14 +32,17 @@ export default function DialogBuyProduct(props) {
       alert('Vui lòng nhập giá!')
     } else {
       const data = {
-        id: user['_id'],
-        point: price * (1 / 100)
+        id: user['id'],
+        point: price * (1 / 100),
+        price,
+        startDate
       }
 
-      await axios.post('http://localhost:5000/api/users/buyProduct', data)
+      await axios.post('http://localhost:3003/api/users/buyProduct', data)
         .then(response => {
           alert(response.data.msg)
-          onClose(response.data.newUser)
+          const isReload = true;
+          onClose(isReload)
         })
         .catch(error => {
           alert(error.response.data.msg)

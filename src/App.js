@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { TextField, Button, Box } from "@material-ui/core";
 import Result from "./Result";
 import axios from "axios";
@@ -6,7 +6,28 @@ import axios from "axios";
 function App() {
   const [customerName, setCustomerName] = useState("");
   const [isResult, setIsResult] = useState(false);
+  const [isReload, setIsReload] = useState(false);
   const [user, setUser] = useState({});
+  const [startDate, setStartDate] = useState(new Date());
+
+  const handleTurnOnReload = () => {
+    setIsReload(true);
+  }
+
+  const handleChangeDate = async (date) => {
+    setStartDate(date)
+
+    const data = {name: customerName, date: date};
+
+      await axios.post('http://localhost:3003/api/users/findByName', data)
+        .then(response => {
+          setIsResult(true);
+          setUser(response.data.user)
+        })
+        .catch(error => {
+          alert(error.response.data.msg)
+        });
+  }
 
   const handleTextChange = (event) => {
     setCustomerName(event.target.value);
@@ -16,9 +37,9 @@ function App() {
     if (!customerName) {
       alert('Vui lòng nhập tên khách hàng!')
     } else {
-      const data = {name: customerName};
+      const data = {name: customerName, date: startDate};
 
-      await axios.post('http://localhost:5000/api/users/findByName', data)
+      await axios.post('http://localhost:3003/api/users/findByName', data)
         .then(response => {
           setIsResult(true);
           setUser(response.data.user)
@@ -36,7 +57,7 @@ function App() {
     } else {
       const data = {name: customerName};
 
-      await axios.post('http://localhost:5000/api/users/add', data)
+      await axios.post('http://localhost:3003/api/users/add', data)
         .then(response => {
           alert(response.data)
           handleSearchClick()
@@ -46,6 +67,14 @@ function App() {
         });
     }
   };
+
+  useEffect(() => {
+    if(isReload) {
+      handleSearchClick()
+    }
+    setIsReload(false)
+  }, [isReload])
+
 
   return (
     <Box sx={{width: "100%"}}>
@@ -76,7 +105,7 @@ function App() {
         </Button>
       </form>
       {isResult && (
-           <Result user={user} />
+           <Result user={user} startDate={startDate} handleChangeDate={handleChangeDate} handleTurnOnReload={handleTurnOnReload} />
       )}
     </Box>
   );
